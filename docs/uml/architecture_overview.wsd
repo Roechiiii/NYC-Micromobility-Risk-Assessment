@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam roundcorner 10
+skinparam shadowing false
+skinparam defaultFontName "Helvetica"
+
+' Color Palette
+!define AXA_BLUE #00008F
+!define AXA_RED #FF0000
+!define LAYER_BG #F4F7FB
+!define PROCESS_BG #FFFFFF
+
+skinparam package {
+    BackgroundColor LAYER_BG
+    BorderColor AXA_BLUE
+    FontColor AXA_BLUE
+}
+
+skinparam component {
+    BackgroundColor PROCESS_BG
+    BorderColor AXA_BLUE
+}
+
+title "Micromobility Risk Engine: Simplified 3-Layer Architecture"
+
+package "1. Aggregation Layer (Station Metrics)" as Aggregation {
+    [Station Safety Index Builder] as SSI
+    [SQL Spatial Join] as SQL
+    note right of SSI: Aggregates trip counts and\nmaps collisions to stations
+}
+
+package "2. Intelligence Layer (Risk Modeling)" as ML {
+    [K-Means Clustering] as Cluster
+    [Random Forest Classifier] as RF
+    note right of Cluster: Segments stations into\n4 actuarial tiers
+}
+
+package "3. Flow Layer (Network Analysis)" as Flow {
+    [Station-to-Station Graph] as Graph
+    [Distance-Normalized Risk] as Risk
+    note right of Graph: Analyzes abstract flow\nbetween top 500 routes
+}
+
+database "Data Storage" as DB {
+    [citibike.duckdb] as DDB
+}
+
+' Flow relations
+[Raw Data] --> DDB
+DDB --> Aggregation
+Aggregation --> ML
+Aggregation --> Flow
+
+ML --> [Actuarial Tiers]
+ML --> [Liability Watchlist]
+Flow --> [Spider Map]
+Flow --> [Top 25 Risky Routes]
+
+@enduml

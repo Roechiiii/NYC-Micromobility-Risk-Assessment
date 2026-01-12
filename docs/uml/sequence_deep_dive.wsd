@@ -1,0 +1,63 @@
+@startuml
+!theme plain
+autonumber
+skinparam backgroundColor #FFFFFF
+skinparam sequenceMessageAlign center
+
+actor "User / Researcher" as User
+participant "run_analysis.py" as Main
+participant "DatabaseManager" as DB
+participant "FeatureBuilder\n(Aggregation Layer)" as Feature
+participant "InsuranceRiskML\n(Intelligence Layer)" as Cluster
+participant "RiskNetworkAnalyzer\n(Flow Layer)" as Flow
+
+title "Simplified Pipeline: Station-Level Risk Analysis"
+
+== Initialization ==
+User -> Main : execute pipeline
+Main -> DB : connect()
+
+== Layer 1: Station Aggregation ==
+Main -> Feature : build_station_safety_index(conn)
+activate Feature
+Feature -> Feature : SQL: Aggregate trips by station
+Feature -> Feature : SQL: Spatial join collisions\n(Bounding box)
+Feature -> Feature : Calculate Risk Index:\n(Deaths*10 + Injuries*3) * 10k / Trips
+Feature --> Main : 'station_safety_index' Table
+deactivate Feature
+
+== Layer 2: Strategic Segmentation ==
+Main -> Cluster : run_clustering_pipeline()
+activate Cluster
+Cluster -> Cluster : K-Means (n_clusters=4)
+Cluster -> Cluster : Sort clusters by mean risk
+Cluster -> Cluster : Assign Tiers (Tier 1-4)
+Cluster --> Main : Clustered DataFrame
+deactivate Cluster
+
+Main -> Cluster : train_risk_classifier()
+activate Cluster
+Cluster -> Cluster : Random Forest\n(Features: volume, borough)
+Cluster --> Main : Trained Classifier
+deactivate Cluster
+
+Main -> Cluster : generate_financial_watchlist()
+activate Cluster
+Cluster -> Cluster : Calculate liability:\nInjuries*35k + Deaths*500k
+Cluster --> Main : Top 10 High-Liability Stations
+deactivate Cluster
+
+== Layer 3: Flow Analysis ==
+Main -> Flow : build_risk_graph(min_volume=500)
+activate Flow
+Flow -> Flow : SQL: Top 500 routes by volume
+Flow -> Flow : SQL: Spatial join collisions\nto route bounding boxes
+Flow -> Flow : Calculate Distance-Normalized\nRisk Score
+Flow --> Main : Graph + Risk DataFrame
+deactivate Flow
+
+Main -> Flow : generate_risk_report()
+Main -> Flow : plot_final_clean_network()
+Main -> User : "✅ Analysis Complete."
+
+@enduml

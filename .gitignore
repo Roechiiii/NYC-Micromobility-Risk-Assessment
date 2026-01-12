@@ -205,3 +205,23 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*$py.class
+
+# Virtual environments
+.venv
+/bin/*
+.env
+
+# Data and outputs
+/data/*
+*.csv
+*.duckdb
+*.graphml
+*.html

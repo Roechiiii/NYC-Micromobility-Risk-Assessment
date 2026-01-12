@@ -1,0 +1,48 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam arrowThickness 1.5
+skinparam componentStyle uml2
+
+title "Simplified Logic: 3-Layer Station-Based Analysis"
+
+package "Layer 1: Station Aggregation" #E8F8F5 {
+    [SQL Trip Aggregation] as Trips
+    [Bounding Box Join] as BBox
+    note top of BBox
+        **Spatial Join**:
+        Collisions within ±0.0015° 
+        of station coordinates
+        (~150m radius)
+    end note
+}
+
+package "Layer 2: Strategic Intelligence" #FEF9E7 {
+    [K-Means Clustering] as KM
+    [Risk Normalization] as Norm
+    note top of Norm
+        **Risk Formula**:
+        (Injuries*3 + Deaths*10) * 10k 
+        / Trip Volume
+        (Actuarial severity weighting)
+    end note
+}
+
+package "Layer 3: Flow Analysis" #FBEEE6 {
+    [Station-to-Station Graph] as Spider
+    [Distance Normalization] as DistNorm
+    note top of DistNorm
+        **Distance-Normalized Risk**:
+        (Accidents * 1000) / 
+        (Volume * Distance)
+        Penalizes short danger zones
+    end note
+}
+
+Trips -.-> BBox
+BBox --> Norm
+Norm --> KM
+Norm --> Spider
+Spider --> DistNorm
+
+@enduml
